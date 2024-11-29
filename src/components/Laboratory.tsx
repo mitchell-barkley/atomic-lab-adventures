@@ -12,7 +12,7 @@ interface LaboratoryProps {
 export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => {
   const [beakerElements, setBeakerElements] = useState<Element[]>([]);
   const [testTubeElements, setTestTubeElements] = useState<Element[][]>(Array(6).fill([]));
-  const [temperature, setTemperature] = useState(25); // 25°C default
+  const [temperature, setTemperature] = useState(25);
   const [isCentrifugeActive, setIsCentrifugeActive] = useState(false);
   const { toast } = useToast();
 
@@ -93,47 +93,49 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 p-6 bg-secondary rounded-lg min-h-[300px]">
-      <div className="text-xl font-bold text-foreground mb-4">Laboratory Equipment</div>
+    <div className="flex flex-col gap-6 p-8 bg-secondary rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold text-foreground text-center">Laboratory Equipment</h2>
       
-      <div className="flex gap-8">
-        {/* Bunsen Burner Control */}
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-foreground font-medium">Bunsen Burner</span>
-          <div className="w-32 flex flex-col items-center gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Bunsen Burner Section */}
+        <div className="bg-primary/10 p-6 rounded-lg border-2 border-primary/30">
+          <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Bunsen Burner</h3>
+          <div className="flex flex-col items-center gap-4">
             <Slider
               value={[temperature]}
               onValueChange={(value) => setTemperature(value[0])}
               min={25}
               max={500}
               step={5}
+              className="w-full"
             />
-            <span className="text-sm text-muted-foreground">{temperature}°C</span>
+            <span className="text-sm font-medium text-foreground">{temperature}°C</span>
           </div>
         </div>
 
-        {/* Beaker */}
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-foreground font-medium">Beaker</span>
+        {/* Beaker Section */}
+        <div className="bg-primary/10 p-6 rounded-lg border-2 border-primary/30">
+          <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Beaker</h3>
           <div 
-            className="w-32 h-48 bg-primary/20 rounded-lg flex flex-col items-center justify-center border-2 border-primary p-2"
+            className="w-full h-48 bg-primary/20 rounded-lg flex flex-col items-center justify-start gap-2 border-2 border-primary p-2 overflow-y-auto"
             onDrop={(e) => handleDrop(e, 'beaker')}
             onDragOver={handleDragOver}
           >
             {beakerElements.map((element, index) => (
               <div 
                 key={index} 
-                className="bg-primary/40 px-2 py-1 rounded mb-1 text-foreground"
+                className="bg-primary/40 px-3 py-1.5 rounded-md text-foreground font-medium w-full text-center"
               >
                 {element.symbol}
               </div>
             ))}
           </div>
-          <div className="flex gap-2">
+          <div className="flex justify-center gap-4 mt-4">
             <Button 
               onClick={() => handleMix('beaker')}
               disabled={beakerElements.length < 2}
               variant="secondary"
+              className="w-24"
             >
               Mix
             </Button>
@@ -141,42 +143,46 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
               onClick={handleCentrifuge}
               disabled={beakerElements.length === 0 || isCentrifugeActive}
               variant="secondary"
-              className={isCentrifugeActive ? 'animate-spin' : ''}
+              className={`w-24 ${isCentrifugeActive ? 'animate-spin' : ''}`}
             >
               Centrifuge
             </Button>
           </div>
         </div>
 
-        {/* Test Tubes */}
-        <div className="flex gap-2">
-          {testTubeElements.map((tubeElements, index) => (
-            <div key={index} className="flex flex-col items-center gap-2">
-              <span className="text-foreground font-medium">Tube {index + 1}</span>
-              <div 
-                className="w-16 h-48 bg-primary/20 rounded-lg flex flex-col items-center justify-center border-2 border-primary p-2"
-                onDrop={(e) => handleDrop(e, 'testTube', index)}
-                onDragOver={handleDragOver}
-              >
-                {tubeElements.map((element, elemIndex) => (
-                  <div 
-                    key={elemIndex} 
-                    className="bg-primary/40 px-2 py-1 rounded mb-1 text-foreground"
-                  >
-                    {element.symbol}
-                  </div>
-                ))}
+        {/* Test Tubes Section */}
+        <div className="bg-primary/10 p-6 rounded-lg border-2 border-primary/30">
+          <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Test Tubes</h3>
+          <div className="grid grid-cols-3 gap-2">
+            {testTubeElements.map((tubeElements, index) => (
+              <div key={index} className="flex flex-col items-center gap-2">
+                <span className="text-sm text-foreground font-medium">#{index + 1}</span>
+                <div 
+                  className="w-full h-32 bg-primary/20 rounded-lg flex flex-col items-center justify-start gap-1 border-2 border-primary p-1 overflow-y-auto"
+                  onDrop={(e) => handleDrop(e, 'testTube', index)}
+                  onDragOver={handleDragOver}
+                >
+                  {tubeElements.map((element, elemIndex) => (
+                    <div 
+                      key={elemIndex} 
+                      className="bg-primary/40 px-2 py-1 rounded-md text-foreground font-medium w-full text-center text-sm"
+                    >
+                      {element.symbol}
+                    </div>
+                  ))}
+                </div>
+                <Button 
+                  onClick={() => handleMix('testTube', index)}
+                  disabled={!tubeElements.length || tubeElements.length < 2}
+                  variant="secondary"
+                  size="sm"
+                  className="w-full"
+                >
+                  Mix
+                </Button>
               </div>
-              <Button 
-                onClick={() => handleMix('testTube', index)}
-                disabled={!tubeElements.length || tubeElements.length < 2}
-                variant="secondary"
-                size="sm"
-              >
-                Mix
-              </Button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
