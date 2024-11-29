@@ -15,17 +15,51 @@ export const PeriodicTable: React.FC<PeriodicTableProps> = ({ onElementDrag }) =
 
   // Helper function to position elements in the grid
   const getGridPosition = (atomicNumber: number) => {
-    const positions: { [key: number]: string } = {
-      1: "col-start-1 row-start-1",
-      2: "col-start-18 row-start-1",
-      3: "col-start-1 row-start-2",
-      4: "col-start-2 row-start-2",
-      5: "col-start-13 row-start-2",
-      6: "col-start-14 row-start-2",
-      7: "col-start-15 row-start-2",
-      8: "col-start-16 row-start-2",
-    };
-    return positions[atomicNumber] || "";
+    // Period 1
+    if (atomicNumber === 1) return "col-start-1 row-start-1";
+    if (atomicNumber === 2) return "col-start-18 row-start-1";
+    
+    // Period 2
+    if (atomicNumber === 3) return "col-start-1 row-start-2";
+    if (atomicNumber === 4) return "col-start-2 row-start-2";
+    if (atomicNumber >= 5 && atomicNumber <= 10) 
+      return `col-start-${atomicNumber + 8} row-start-2`;
+
+    // Period 3
+    if (atomicNumber === 11) return "col-start-1 row-start-3";
+    if (atomicNumber === 12) return "col-start-2 row-start-3";
+    if (atomicNumber >= 13 && atomicNumber <= 18) 
+      return `col-start-${atomicNumber} row-start-3`;
+
+    // Period 4
+    if (atomicNumber >= 19 && atomicNumber <= 36) 
+      return `col-start-${(atomicNumber - 18)} row-start-4`;
+
+    // Period 5
+    if (atomicNumber >= 37 && atomicNumber <= 54) 
+      return `col-start-${(atomicNumber - 36)} row-start-5`;
+
+    // Period 6 (including lanthanides)
+    if (atomicNumber >= 55 && atomicNumber <= 56) 
+      return `col-start-${(atomicNumber - 54)} row-start-6`;
+    if (atomicNumber >= 72 && atomicNumber <= 86) 
+      return `col-start-${(atomicNumber - 68)} row-start-6`;
+
+    // Period 7 (including actinides)
+    if (atomicNumber >= 87 && atomicNumber <= 88) 
+      return `col-start-${(atomicNumber - 86)} row-start-7`;
+    if (atomicNumber >= 104 && atomicNumber <= 118) 
+      return `col-start-${(atomicNumber - 100)} row-start-7`;
+
+    // Lanthanides (Period 6)
+    if (atomicNumber >= 57 && atomicNumber <= 71) 
+      return `col-start-${(atomicNumber - 54)} row-start-9`;
+
+    // Actinides (Period 7)
+    if (atomicNumber >= 89 && atomicNumber <= 103) 
+      return `col-start-${(atomicNumber - 86)} row-start-10`;
+
+    return "";
   };
 
   return (
