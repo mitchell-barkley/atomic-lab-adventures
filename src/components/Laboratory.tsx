@@ -14,6 +14,7 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
   const [testTubeElements, setTestTubeElements] = useState<Element[][]>(Array(6).fill([]));
   const [temperature, setTemperature] = useState(25);
   const [isCentrifugeActive, setIsCentrifugeActive] = useState(false);
+  const [activeTestTube, setActiveTestTube] = useState<number | null>(null);
   const { toast } = useToast();
 
   const handleDrop = (e: React.DragEvent, container: 'beaker' | 'testTube', tubeIndex?: number) => {
@@ -28,6 +29,41 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
         newTestTubes[tubeIndex] = [...(newTestTubes[tubeIndex] || []), element];
         setTestTubeElements(newTestTubes);
       }
+    }
+  };
+
+  const handleTestTubeDragStart = (e: React.DragEvent, tubeIndex: number) => {
+    e.dataTransfer.setData('testTube', tubeIndex.toString());
+    setActiveTestTube(tubeIndex);
+  };
+
+  const handleEquipmentDrop = (e: React.DragEvent, equipment: 'burner' | 'centrifuge') => {
+    e.preventDefault();
+    const tubeIndex = parseInt(e.dataTransfer.getData('testTube'));
+    
+    if (isNaN(tubeIndex) || !testTubeElements[tubeIndex]?.length) return;
+
+    if (equipment === 'burner') {
+      toast({
+        title: "Heating Test Tube",
+        description: `Test tube #${tubeIndex + 1} is being heated to ${temperature}°C`,
+      });
+      // Add any specific heating logic here
+    } else if (equipment === 'centrifuge') {
+      setIsCentrifugeActive(true);
+      toast({
+        title: "Centrifuge Active",
+        description: `Separating contents of test tube #${tubeIndex + 1}`,
+      });
+      
+      setTimeout(() => {
+        setIsCentrifugeActive(false);
+        // Add any specific separation logic here
+        toast({
+          title: "Centrifuge Complete",
+          description: "Contents have been separated",
+        });
+      }, 2000);
     }
   };
 
@@ -72,35 +108,22 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
     }
   };
 
-  const handleCentrifuge = () => {
-    setIsCentrifugeActive(true);
-    setTimeout(() => {
-      setIsCentrifugeActive(false);
-      // Distribute beaker elements across test tubes based on some property
-      // This is a simplified example - you might want to implement more complex separation logic
-      const newTestTubes = Array(6).fill([]).map(() => []);
-      beakerElements.forEach((element, index) => {
-        const tubeIndex = index % 6;
-        newTestTubes[tubeIndex] = [...newTestTubes[tubeIndex], element];
-      });
-      setTestTubeElements(newTestTubes);
-      setBeakerElements([]);
-      toast({
-        title: "Centrifuge complete",
-        description: "Elements have been separated into test tubes",
-      });
-    }, 2000);
-  };
-
   return (
     <div className="flex flex-col gap-6 p-8 bg-secondary rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold text-foreground text-center">Laboratory Equipment</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Bunsen Burner Section */}
-        <div className="bg-primary/10 p-6 rounded-lg border-2 border-primary/30">
+        <div 
+          className="bg-primary/10 p-6 rounded-lg border-2 border-primary/30"
+          onDrop={(e) => handleEquipmentDrop(e, 'burner')}
+          onDragOver={handleDragOver}
+        >
           <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Bunsen Burner</h3>
           <div className="flex flex-col items-center gap-4">
+            <div className="w-24 h-24 bg-orange-500/20 rounded-full border-2 border-orange-500 flex items-center justify-center">
+              <span className="text-orange-600 font-bold">{temperature}°C</span>
+            </div>
             <Slider
               value={[temperature]}
               onValueChange={(value) => setTemperature(value[0])}
@@ -109,12 +132,25 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
               step={5}
               className="w-full"
             />
-            <span className="text-sm font-medium text-foreground">{temperature}°C</span>
+          </div>
+        </div>
+
+        {/* Centrifuge Section */}
+        <div 
+          className="bg-primary/10 p-6 rounded-lg border-2 border-primary/30"
+          onDrop={(e) => handleEquipmentDrop(e, 'centrifuge')}
+          onDragOver={handleDragOver}
+        >
+          <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Centrifuge</h3>
+          <div className="flex flex-col items-center gap-4">
+            <div className={`w-24 h-24 bg-blue-500/20 rounded-full border-2 border-blue-500 flex items-center justify-center transition-transform duration-500 ${isCentrifugeActive ? 'animate-spin' : ''}`}>
+              <span className="text-blue-600 font-bold">Spin</span>
+            </div>
           </div>
         </div>
 
         {/* Beaker Section */}
-        <div className="bg-primary/10 p-6 rounded-lg border-2 border-primary/30">
+        <div className="bg-primary/10 p-6 rounded-lg border-2 border-primary/30 md:col-span-2">
           <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Beaker</h3>
           <div 
             className="w-full h-48 bg-primary/20 rounded-lg flex flex-col items-center justify-start gap-2 border-2 border-primary p-2 overflow-y-auto"
@@ -130,59 +166,14 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
               </div>
             ))}
           </div>
-          <div className="flex justify-center gap-4 mt-4">
-            <Button 
-              onClick={() => handleMix('beaker')}
-              disabled={beakerElements.length < 2}
-              variant="secondary"
-              className="w-24"
-            >
-              Mix
-            </Button>
-            <Button
-              onClick={handleCentrifuge}
-              disabled={beakerElements.length === 0 || isCentrifugeActive}
-              variant="secondary"
-              className={`w-24 ${isCentrifugeActive ? 'animate-spin' : ''}`}
-            >
-              Centrifuge
-            </Button>
-          </div>
-        </div>
-
-        {/* Test Tubes Section */}
-        <div className="bg-primary/10 p-6 rounded-lg border-2 border-primary/30">
-          <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Test Tubes</h3>
-          <div className="grid grid-cols-3 gap-2">
-            {testTubeElements.map((tubeElements, index) => (
-              <div key={index} className="flex flex-col items-center gap-2">
-                <span className="text-sm text-foreground font-medium">#{index + 1}</span>
-                <div 
-                  className="w-full h-32 bg-primary/20 rounded-lg flex flex-col items-center justify-start gap-1 border-2 border-primary p-1 overflow-y-auto"
-                  onDrop={(e) => handleDrop(e, 'testTube', index)}
-                  onDragOver={handleDragOver}
-                >
-                  {tubeElements.map((element, elemIndex) => (
-                    <div 
-                      key={elemIndex} 
-                      className="bg-primary/40 px-2 py-1 rounded-md text-foreground font-medium w-full text-center text-sm"
-                    >
-                      {element.symbol}
-                    </div>
-                  ))}
-                </div>
-                <Button 
-                  onClick={() => handleMix('testTube', index)}
-                  disabled={!tubeElements.length || tubeElements.length < 2}
-                  variant="secondary"
-                  size="sm"
-                  className="w-full"
-                >
-                  Mix
-                </Button>
-              </div>
-            ))}
-          </div>
+          <Button 
+            onClick={() => handleMix('beaker')}
+            disabled={beakerElements.length < 2}
+            variant="secondary"
+            className="w-full mt-4"
+          >
+            Mix
+          </Button>
         </div>
       </div>
     </div>
