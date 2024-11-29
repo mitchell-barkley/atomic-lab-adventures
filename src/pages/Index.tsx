@@ -39,43 +39,40 @@ const Index = () => {
       </h1>
       
       <div className="max-w-7xl mx-auto space-y-8">
-        <div className="grid grid-cols-[1fr_300px] gap-8">
+        <div className="grid grid-cols-[300px_1fr_300px] gap-8">
           <Laboratory onCompoundCreated={handleCompoundCreated} />
+          <PeriodicTable onElementDrag={setSelectedElement} />
           <Inventory compounds={compounds} />
         </div>
 
-        <div className="space-y-8">
-          <PeriodicTable onElementDrag={setSelectedElement} />
-          
-          {/* Test Tubes Section */}
-          <div className="bg-secondary p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Test Tubes</h3>
-            <div className="grid grid-cols-6 gap-4">
-              {testTubeElements.map((tubeElements, index) => (
+        {/* Test Tubes Section */}
+        <div className="bg-secondary p-6 rounded-lg">
+          <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Test Tubes</h3>
+          <div className="grid grid-cols-6 gap-4">
+            {testTubeElements.map((tubeElements, index) => (
+              <div 
+                key={index}
+                className="flex flex-col items-center gap-2"
+                draggable
+                onDragStart={(e) => handleTestTubeDragStart(e, index)}
+              >
+                <span className="text-sm text-foreground font-medium">#{index + 1}</span>
                 <div 
-                  key={index}
-                  className="flex flex-col items-center gap-2"
-                  draggable
-                  onDragStart={(e) => handleTestTubeDragStart(e, index)}
+                  className="w-full h-32 bg-primary/20 rounded-lg flex flex-col items-center justify-start gap-1 border-2 border-primary p-1 overflow-y-auto cursor-move hover:border-primary/60 transition-colors"
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragOver={handleDragOver}
                 >
-                  <span className="text-sm text-foreground font-medium">#{index + 1}</span>
-                  <div 
-                    className="w-full h-32 bg-primary/20 rounded-lg flex flex-col items-center justify-start gap-1 border-2 border-primary p-1 overflow-y-auto cursor-move hover:border-primary/60 transition-colors"
-                    onDrop={(e) => handleDrop(e, index)}
-                    onDragOver={handleDragOver}
-                  >
-                    {tubeElements.map((element, elemIndex) => (
-                      <div 
-                        key={elemIndex} 
-                        className="bg-primary/40 px-2 py-1 rounded-md text-foreground font-medium w-full text-center text-sm"
-                      >
-                        {element.symbol}
-                      </div>
-                    ))}
-                  </div>
+                  {tubeElements.map((element, elemIndex) => (
+                    <div 
+                      key={elemIndex} 
+                      className="bg-primary/40 px-2 py-1 rounded-md text-foreground font-medium w-full text-center text-sm"
+                    >
+                      {element.symbol}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
