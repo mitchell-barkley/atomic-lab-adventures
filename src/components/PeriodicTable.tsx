@@ -63,8 +63,8 @@ export const PeriodicTable: React.FC<PeriodicTableProps> = ({ onElementDrag }) =
   };
 
   return (
-    <div className="p-4 bg-secondary rounded-lg max-w-[1200px] mx-auto">
-      <div className="grid grid-cols-18 gap-1 relative">
+    <div className="p-3 bg-secondary rounded-lg max-w-[900px] mx-auto">
+      <div className="grid grid-cols-18 gap-0.5 relative">
         {PERIODIC_TABLE_DATA.map((element) => (
           <TooltipProvider key={element.symbol}>
             <Tooltip>
@@ -72,12 +72,12 @@ export const PeriodicTable: React.FC<PeriodicTableProps> = ({ onElementDrag }) =
                 <div
                   draggable
                   onDragStart={handleDragStart(element)}
-                  className={`w-14 h-14 flex flex-col items-center justify-center bg-primary 
+                  className={`w-11 h-11 flex flex-col items-center justify-center bg-primary 
                            hover:bg-primary/80 rounded cursor-move transition-colors p-1 
                            animate-fade-in ${getGridPosition(element.atomicNumber)}`}
                 >
-                  <span className="text-xs text-foreground/60">{element.atomicNumber}</span>
-                  <span className="text-lg font-bold text-foreground">{element.symbol}</span>
+                  <span className="text-[10px] text-foreground/60">{element.atomicNumber}</span>
+                  <span className="text-sm font-bold text-foreground">{element.symbol}</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent className="p-2 max-w-xs">

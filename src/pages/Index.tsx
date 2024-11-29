@@ -67,22 +67,22 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <h1 className="text-4xl font-bold text-center text-foreground mb-8">
+    <div className="min-h-screen bg-background p-4">
+      <h1 className="text-3xl font-bold text-center text-foreground mb-6">
         Chemistry Lab
       </h1>
       
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="grid grid-cols-[300px_1fr_300px] gap-8">
+      <div className="max-w-[1400px] mx-auto space-y-6">
+        <div className="grid grid-cols-[250px_1fr_250px] gap-4">
           <Laboratory onCompoundCreated={handleCompoundCreated} />
           <PeriodicTable onElementDrag={setSelectedElement} />
           <Inventory compounds={compounds} />
         </div>
 
         {/* Test Tubes Section */}
-        <div className="bg-secondary p-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Test Tubes</h3>
-          <div className="grid grid-cols-6 gap-4">
+        <div className="bg-secondary p-4 rounded-lg">
+          <h3 className="text-lg font-semibold text-foreground mb-3 text-center">Test Tubes</h3>
+          <div className="grid grid-cols-6 gap-3">
             {testTubeElements.map((tubeElements, index) => (
               <div 
                 key={index}
@@ -90,7 +90,7 @@ const Index = () => {
               >
                 <span className="text-sm text-foreground font-medium">#{index + 1}</span>
                 <div 
-                  className="w-full h-32 bg-primary/20 rounded-lg flex flex-col items-center justify-start gap-1 border-2 border-primary p-1 overflow-y-auto cursor-move hover:border-primary/60 transition-colors"
+                  className="w-full h-28 bg-primary/20 rounded-lg flex flex-col items-center justify-start gap-1 border-2 border-primary p-1 overflow-y-auto cursor-move hover:border-primary/60 transition-colors"
                   draggable
                   onDragStart={(e) => handleTestTubeDragStart(e, index)}
                   onDrop={(e) => handleDrop(e, index)}

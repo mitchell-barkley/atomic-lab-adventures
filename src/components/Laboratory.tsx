@@ -60,19 +60,19 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
   };
 
   return (
-    <div className="flex flex-col gap-6 p-8 bg-secondary rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold text-foreground text-center">Laboratory Equipment</h2>
+    <div className="flex flex-col gap-4 p-4 bg-secondary rounded-lg shadow-lg">
+      <h2 className="text-xl font-bold text-foreground text-center">Laboratory Equipment</h2>
       
-      <div className="grid grid-cols-1 gap-8">
+      <div className="grid grid-cols-1 gap-4">
         {/* Bunsen Burner Section */}
         <div 
-          className="bg-primary/10 p-6 rounded-lg border-2 border-primary/30"
+          className="bg-primary/10 p-4 rounded-lg border-2 border-primary/30"
           onDrop={(e) => handleEquipmentDrop(e, 'burner')}
           onDragOver={handleDragOver}
         >
-          <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Bunsen Burner</h3>
-          <div className="flex flex-col items-center gap-4">
-            <div className={`w-24 h-24 rounded-full border-2 flex items-center justify-center ${getBurnerColor()}`}>
+          <h3 className="text-base font-semibold text-foreground mb-3 text-center">Bunsen Burner</h3>
+          <div className="flex flex-col items-center gap-3">
+            <div className={`w-20 h-20 rounded-full border-2 flex items-center justify-center ${getBurnerColor()}`}>
               <span className={`font-bold ${getBurnerTextColor()}`}>
                 {temperature <= 25 ? 'Off' : `${temperature}°C`}
               </span>
@@ -90,13 +90,13 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
 
         {/* Centrifuge Section */}
         <div 
-          className="bg-primary/10 p-6 rounded-lg border-2 border-primary/30"
+          className="bg-primary/10 p-4 rounded-lg border-2 border-primary/30"
           onDrop={(e) => handleEquipmentDrop(e, 'centrifuge')}
           onDragOver={handleDragOver}
         >
-          <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Centrifuge</h3>
-          <div className="flex flex-col items-center gap-4">
-            <div className={`w-24 h-24 bg-blue-500/20 rounded-full border-2 border-blue-500 flex items-center justify-center transition-transform duration-500 ${isCentrifugeActive ? 'animate-spin' : ''}`}>
+          <h3 className="text-base font-semibold text-foreground mb-3 text-center">Centrifuge</h3>
+          <div className="flex flex-col items-center gap-3">
+            <div className={`w-20 h-20 bg-blue-500/20 rounded-full border-2 border-blue-500 flex items-center justify-center transition-transform duration-500 ${isCentrifugeActive ? 'animate-spin' : ''}`}>
               <span className="text-blue-600 font-bold">Spin</span>
             </div>
           </div>
