@@ -18,13 +18,12 @@ const Index = () => {
         Chemistry Lab
       </h1>
       
-      <div className="max-w-7xl mx-auto space-y-8">
-        <PeriodicTable onElementDrag={setSelectedElement} />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Laboratory onCompoundCreated={handleCompoundCreated} />
-          <Inventory compounds={compounds} />
+      <div className="max-w-7xl mx-auto grid grid-cols-[300px_1fr_300px] gap-8">
+        <Laboratory onCompoundCreated={handleCompoundCreated} />
+        <div className="w-full">
+          <PeriodicTable onElementDrag={setSelectedElement} />
         </div>
+        <Inventory compounds={compounds} />
       </div>
     </div>
   );
