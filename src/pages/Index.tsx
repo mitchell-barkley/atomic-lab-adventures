@@ -6,6 +6,7 @@ import { Compound, Element } from '../types/chemistry';
 import { Button } from '../components/ui/button';
 import { useToast } from '../hooks/use-toast';
 import { combineElements } from '../utils/chemistry';
+import { X } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -76,6 +77,22 @@ const Index = () => {
     }
   };
 
+  const handleEmptyTube = (tubeIndex: number) => {
+    const newTestTubes = [...testTubeElements];
+    newTestTubes[tubeIndex] = [];
+    setTestTubeElements(newTestTubes);
+    toast({
+      title: "Test Tube Emptied",
+      description: "All elements have been removed",
+    });
+  };
+
+  const handleRemoveElement = (tubeIndex: number, elementIndex: number) => {
+    const newTestTubes = [...testTubeElements];
+    newTestTubes[tubeIndex] = newTestTubes[tubeIndex].filter((_, idx) => idx !== elementIndex);
+    setTestTubeElements(newTestTubes);
+  };
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
@@ -117,21 +134,37 @@ const Index = () => {
                   {tubeElements.map((element, elemIndex) => (
                     <div 
                       key={elemIndex} 
-                      className="bg-primary/40 px-2 py-1 rounded-md text-foreground font-medium w-full text-center text-sm"
+                      className="bg-primary/40 px-2 py-1 rounded-md text-foreground font-medium w-full text-center text-sm relative group"
                     >
                       {element.symbol}
+                      <button
+                        onClick={() => handleRemoveElement(index, elemIndex)}
+                        className="absolute right-0.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label="Remove element"
+                      >
+                        <X className="h-3 w-3 text-foreground/80 hover:text-foreground" />
+                      </button>
                     </div>
                   ))}
                 </div>
-                <Button 
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => handleMix(index)}
-                  className="w-full"
-                  disabled={tubeElements.length < 2}
-                >
-                  Mix
-                </Button>
+                <div className="flex flex-col w-full gap-1">
+                  <Button 
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleMix(index)}
+                    disabled={tubeElements.length < 2}
+                  >
+                    Mix
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEmptyTube(index)}
+                    disabled={tubeElements.length === 0}
+                  >
+                    Empty
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
