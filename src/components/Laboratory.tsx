@@ -3,6 +3,7 @@ import { Element, Compound } from '../types/chemistry';
 import { combineElements } from '../utils/chemistry';
 import { Button } from './ui/button';
 import { useToast } from '../hooks/use-toast';
+import { Slider } from './ui/slider';
 
 interface LaboratoryProps {
   onCompoundCreated: (compound: Compound) => void;
@@ -10,18 +11,22 @@ interface LaboratoryProps {
 
 export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => {
   const [beakerElements, setBeakerElements] = useState<Element[]>([]);
-  const [testTubeElements, setTestTubeElements] = useState<Element[]>([]);
+  const [testTubeElements, setTestTubeElements] = useState<Element[][]>(Array(6).fill([]));
+  const [temperature, setTemperature] = useState(25); // 25°C default
+  const [isCentrifugeActive, setIsCentrifugeActive] = useState(false);
   const { toast } = useToast();
 
-  const handleDrop = (e: React.DragEvent, container: 'beaker' | 'testTube') => {
+  const handleDrop = (e: React.DragEvent, container: 'beaker' | 'testTube', tubeIndex?: number) => {
     e.preventDefault();
     const elementData = e.dataTransfer.getData('element');
     if (elementData) {
       const element = JSON.parse(elementData) as Element;
       if (container === 'beaker') {
         setBeakerElements([...beakerElements, element]);
-      } else {
-        setTestTubeElements([...testTubeElements, element]);
+      } else if (container === 'testTube' && typeof tubeIndex === 'number') {
+        const newTestTubes = [...testTubeElements];
+        newTestTubes[tubeIndex] = [...(newTestTubes[tubeIndex] || []), element];
+        setTestTubeElements(newTestTubes);
       }
     }
   };
@@ -30,8 +35,11 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
     e.preventDefault();
   };
 
-  const handleMix = (container: 'beaker' | 'testTube') => {
-    const elements = container === 'beaker' ? beakerElements : testTubeElements;
+  const handleMix = (container: 'beaker' | 'testTube', tubeIndex?: number) => {
+    const elements = container === 'beaker' 
+      ? beakerElements 
+      : (tubeIndex !== undefined ? testTubeElements[tubeIndex] : []);
+
     if (elements.length < 2) {
       toast({
         title: "Not enough elements",
@@ -46,8 +54,10 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
       onCompoundCreated(compound);
       if (container === 'beaker') {
         setBeakerElements([]);
-      } else {
-        setTestTubeElements([]);
+      } else if (tubeIndex !== undefined) {
+        const newTestTubes = [...testTubeElements];
+        newTestTubes[tubeIndex] = [];
+        setTestTubeElements(newTestTubes);
       }
       toast({
         title: "Success!",
@@ -62,11 +72,48 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
     }
   };
 
+  const handleCentrifuge = () => {
+    setIsCentrifugeActive(true);
+    setTimeout(() => {
+      setIsCentrifugeActive(false);
+      // Distribute beaker elements across test tubes based on some property
+      // This is a simplified example - you might want to implement more complex separation logic
+      const newTestTubes = Array(6).fill([]).map(() => []);
+      beakerElements.forEach((element, index) => {
+        const tubeIndex = index % 6;
+        newTestTubes[tubeIndex] = [...newTestTubes[tubeIndex], element];
+      });
+      setTestTubeElements(newTestTubes);
+      setBeakerElements([]);
+      toast({
+        title: "Centrifuge complete",
+        description: "Elements have been separated into test tubes",
+      });
+    }, 2000);
+  };
+
   return (
     <div className="flex flex-col items-center gap-4 p-6 bg-secondary rounded-lg min-h-[300px]">
       <div className="text-xl font-bold text-foreground mb-4">Laboratory Equipment</div>
+      
       <div className="flex gap-8">
-        <div className="flex flex-col items-center gap-4">
+        {/* Bunsen Burner Control */}
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-foreground font-medium">Bunsen Burner</span>
+          <div className="w-32 flex flex-col items-center gap-2">
+            <Slider
+              value={[temperature]}
+              onValueChange={(value) => setTemperature(value[0])}
+              min={25}
+              max={500}
+              step={5}
+            />
+            <span className="text-sm text-muted-foreground">{temperature}°C</span>
+          </div>
+        </div>
+
+        {/* Beaker */}
+        <div className="flex flex-col items-center gap-2">
           <span className="text-foreground font-medium">Beaker</span>
           <div 
             className="w-32 h-48 bg-primary/20 rounded-lg flex flex-col items-center justify-center border-2 border-primary p-2"
@@ -82,38 +129,54 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
               </div>
             ))}
           </div>
-          <Button 
-            onClick={() => handleMix('beaker')}
-            disabled={beakerElements.length < 2}
-            variant="secondary"
-          >
-            Mix
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => handleMix('beaker')}
+              disabled={beakerElements.length < 2}
+              variant="secondary"
+            >
+              Mix
+            </Button>
+            <Button
+              onClick={handleCentrifuge}
+              disabled={beakerElements.length === 0 || isCentrifugeActive}
+              variant="secondary"
+              className={isCentrifugeActive ? 'animate-spin' : ''}
+            >
+              Centrifuge
+            </Button>
+          </div>
         </div>
 
-        <div className="flex flex-col items-center gap-4">
-          <span className="text-foreground font-medium">Test Tube</span>
-          <div 
-            className="w-24 h-48 bg-primary/20 rounded-lg flex flex-col items-center justify-center border-2 border-primary p-2"
-            onDrop={(e) => handleDrop(e, 'testTube')}
-            onDragOver={handleDragOver}
-          >
-            {testTubeElements.map((element, index) => (
+        {/* Test Tubes */}
+        <div className="flex gap-2">
+          {testTubeElements.map((tubeElements, index) => (
+            <div key={index} className="flex flex-col items-center gap-2">
+              <span className="text-foreground font-medium">Tube {index + 1}</span>
               <div 
-                key={index} 
-                className="bg-primary/40 px-2 py-1 rounded mb-1 text-foreground"
+                className="w-16 h-48 bg-primary/20 rounded-lg flex flex-col items-center justify-center border-2 border-primary p-2"
+                onDrop={(e) => handleDrop(e, 'testTube', index)}
+                onDragOver={handleDragOver}
               >
-                {element.symbol}
+                {tubeElements.map((element, elemIndex) => (
+                  <div 
+                    key={elemIndex} 
+                    className="bg-primary/40 px-2 py-1 rounded mb-1 text-foreground"
+                  >
+                    {element.symbol}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <Button 
-            onClick={() => handleMix('testTube')}
-            disabled={testTubeElements.length < 2}
-            variant="secondary"
-          >
-            Mix
-          </Button>
+              <Button 
+                onClick={() => handleMix('testTube', index)}
+                disabled={!tubeElements.length || tubeElements.length < 2}
+                variant="secondary"
+                size="sm"
+              >
+                Mix
+              </Button>
+            </div>
+          ))}
         </div>
       </div>
     </div>
