@@ -13,6 +13,20 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
   const [isCentrifugeActive, setIsCentrifugeActive] = useState(false);
   const { toast } = useToast();
 
+  const getBurnerColor = () => {
+    if (temperature <= 25) return 'bg-gray-500/20 border-gray-500';
+    if (temperature < 100) return 'bg-yellow-500/20 border-yellow-500';
+    if (temperature < 250) return 'bg-orange-500/20 border-orange-500';
+    return 'bg-red-500/20 border-red-500';
+  };
+
+  const getBurnerTextColor = () => {
+    if (temperature <= 25) return 'text-gray-600';
+    if (temperature < 100) return 'text-yellow-600';
+    if (temperature < 250) return 'text-orange-600';
+    return 'text-red-600';
+  };
+
   const handleEquipmentDrop = (e: React.DragEvent, equipment: 'burner' | 'centrifuge') => {
     e.preventDefault();
     const tubeIndex = parseInt(e.dataTransfer.getData('testTube'));
@@ -58,8 +72,10 @@ export const Laboratory: React.FC<LaboratoryProps> = ({ onCompoundCreated }) => 
         >
           <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Bunsen Burner</h3>
           <div className="flex flex-col items-center gap-4">
-            <div className="w-24 h-24 bg-orange-500/20 rounded-full border-2 border-orange-500 flex items-center justify-center">
-              <span className="text-orange-600 font-bold">{temperature}°C</span>
+            <div className={`w-24 h-24 rounded-full border-2 flex items-center justify-center ${getBurnerColor()}`}>
+              <span className={`font-bold ${getBurnerTextColor()}`}>
+                {temperature <= 25 ? 'Off' : `${temperature}°C`}
+              </span>
             </div>
             <Slider
               value={[temperature]}
