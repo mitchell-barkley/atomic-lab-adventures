@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { PeriodicTable } from '../components/PeriodicTable';
 import { Laboratory } from '../components/Laboratory';
 import { Inventory } from '../components/Inventory';
+import { TestTube } from '../components/TestTube';
 import { Compound, Element } from '../types/chemistry';
-import { Button } from '../components/ui/button';
 import { useToast } from '../hooks/use-toast';
 import { combineElements } from '../utils/chemistry';
-import { X } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -93,10 +92,6 @@ const Index = () => {
     setTestTubeElements(newTestTubes);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
   const handleTestTubeDragStart = (e: React.DragEvent, tubeIndex: number) => {
     e.dataTransfer.setData('testTube', tubeIndex.toString());
   };
@@ -118,54 +113,17 @@ const Index = () => {
         <div className="bg-secondary p-3 rounded-lg">
           <h3 className="text-lg font-semibold text-foreground mb-2 text-center">Test Tubes</h3>
           <div className="grid grid-cols-6 gap-2">
-            {testTubeElements.map((tubeElements, index) => (
-              <div 
+            {testTubeElements.map((elements, index) => (
+              <TestTube
                 key={index}
-                className="flex flex-col items-center gap-1"
-              >
-                <span className="text-sm text-foreground font-medium">#{index + 1}</span>
-                <div 
-                  className="w-full h-24 bg-primary/20 rounded-lg flex flex-col items-center justify-start gap-1 border-2 border-primary p-1 overflow-y-auto cursor-move hover:border-primary/60 transition-colors"
-                  draggable
-                  onDragStart={(e) => handleTestTubeDragStart(e, index)}
-                  onDrop={(e) => handleDrop(e, index)}
-                  onDragOver={handleDragOver}
-                >
-                  {tubeElements.map((element, elemIndex) => (
-                    <div 
-                      key={elemIndex} 
-                      className="bg-primary/40 px-2 py-1 rounded-md text-foreground font-medium w-full text-center text-sm relative group"
-                    >
-                      {element.symbol}
-                      <button
-                        onClick={() => handleRemoveElement(index, elemIndex)}
-                        className="absolute right-0.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        aria-label="Remove element"
-                      >
-                        <X className="h-3 w-3 text-foreground/80 hover:text-foreground" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex flex-col w-full gap-1">
-                  <Button 
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleMix(index)}
-                    disabled={tubeElements.length < 2}
-                  >
-                    Mix
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEmptyTube(index)}
-                    disabled={tubeElements.length === 0}
-                  >
-                    Empty
-                  </Button>
-                </div>
-              </div>
+                index={index}
+                elements={elements}
+                onMix={handleMix}
+                onEmpty={handleEmptyTube}
+                onRemoveElement={handleRemoveElement}
+                onDrop={handleDrop}
+                onDragStart={handleTestTubeDragStart}
+              />
             ))}
           </div>
         </div>
