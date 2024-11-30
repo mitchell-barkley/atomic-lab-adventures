@@ -64,7 +64,7 @@ export const PeriodicTable: React.FC<PeriodicTableProps> = ({ onElementDrag }) =
 
   return (
     <div className="p-3 bg-secondary rounded-lg max-w-[900px] mx-auto">
-      <div className="grid grid-cols-18 gap-0.5 relative">
+      <div className="grid grid-cols-18 gap-0.5 relative w-full place-items-center">
         {PERIODIC_TABLE_DATA.map((element) => (
           <TooltipProvider key={element.symbol}>
             <Tooltip>
