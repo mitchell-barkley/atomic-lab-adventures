@@ -95,9 +95,14 @@ export const PeriodicTable: React.FC<PeriodicTableProps> = ({ onElementDrag }) =
     return "";
   };
 
+  console.log("Grid positions for first few elements:");
+  PERIODIC_TABLE_DATA.slice(0, 5).forEach(element => {
+    console.log(`Element ${element.symbol}: col=${getGridPosition(element.atomicNumber)}, row=${getRowPosition(element.atomicNumber)}`);
+  });
+
   return (
     <div className="p-3 bg-secondary rounded-lg max-w-[900px] mx-auto">
-      <div className="grid grid-cols-18 gap-0.5 relative w-full">
+      <div className="grid grid-cols-[repeat(18,minmax(0,1fr))] gap-0.5 relative w-full">
         {PERIODIC_TABLE_DATA.map((element) => (
           <TooltipProvider key={element.symbol}>
             <Tooltip>
